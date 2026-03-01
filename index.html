@@ -3,43 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Broussard Reading Academy</title>
+    <title>Broussard Academy: Phonics Master</title>
     <style>
         :root { --p: #2a52be; --s: #27ae60; --d: #e74c3c; --bg: #fdfcf0; --white: #ffffff; }
-        body { font-family: 'Comic Sans MS', sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        body { font-family: 'Comic Sans MS', sans-serif; background: var(--bg); margin: 0; padding: 0; user-select: none; }
         
         /* Navigation */
         nav { background: var(--white); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .mode-btn { font-size: 30px; cursor: pointer; background: none; border: none; }
+        .mode-btn { font-size: 32px; cursor: pointer; background: none; border: none; }
 
-        /* Student View */
-        #game-view { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 85vh; padding: 20px; }
-        .star-box { font-size: 35px; margin-bottom: 20px; height: 40px; }
-        .word-container { display: flex; gap: 15px; margin: 40px 0; flex-wrap: wrap; justify-content: center; }
+        /* Game View */
+        #game-view { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 85vh; padding: 20px; text-align: center; }
+        .star-box { font-size: 35px; margin-bottom: 20px; height: 50px; }
+        .word-container { display: flex; gap: 20px; margin: 40px 0; flex-wrap: wrap; justify-content: center; }
         
         .syllable-box { 
-            font-size: clamp(40px, 10vw, 80px); font-weight: bold; color: var(--p);
-            padding: 20px 40px; border: 5px solid var(--p); border-radius: 25px;
+            font-size: clamp(50px, 12vw, 100px); font-weight: bold; color: var(--p);
+            padding: 25px 50px; border: 6px solid var(--p); border-radius: 30px;
             background: white; cursor: pointer; transition: 0.1s;
-            box-shadow: 0 10px 0px #cbd5e0;
+            box-shadow: 0 12px 0px #cbd5e0;
         }
-        .syllable-box:active { transform: translateY(4px); box-shadow: 0 6px 0px #cbd5e0; }
+        .syllable-box:active { transform: translateY(4px); box-shadow: 0 8px 0px #cbd5e0; }
         
-        .nav-controls { display: flex; gap: 20px; }
-        .nav-btn { font-size: 24px; padding: 15px 40px; border-radius: 15px; border: 2px solid #ddd; background: white; cursor: pointer; }
-        .btn-next { background: var(--p); color: white; border: none; }
+        .nav-controls { display: flex; gap: 25px; }
+        .nav-btn { font-size: 26px; padding: 15px 45px; border-radius: 20px; border: 2px solid #ddd; background: white; cursor: pointer; font-family: inherit; }
+        .btn-next { background: var(--p); color: white; border: none; box-shadow: 0 5px #1a3a8a; }
 
-        /* Parent Portal */
+        /* Setup View */
         #setup-view { display: none; padding: 25px; }
-        .search-bar { width: 100%; padding: 15px; font-size: 18px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 20px; box-sizing: border-box; }
-        .sound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .sound-card { background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 10px; }
-        .btn-row { display: flex; gap: 8px; }
-        button.action { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; }
+        .search-bar { width: 100%; padding: 18px; font-size: 20px; border-radius: 12px; border: 2px solid #ccc; margin-bottom: 25px; box-sizing: border-box; }
+        .sound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+        .sound-card { background: white; padding: 18px; border-radius: 18px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .btn-row { display: flex; gap: 10px; }
+        button.action { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; }
         .rec { background: var(--d); }
         .stop { background: #333; display: none; animation: pulse 1s infinite; }
         .play { background: var(--s); }
-        .section-label { grid-column: 1/-1; margin-top: 30px; color: var(--p); border-bottom: 3px solid var(--p); padding-bottom: 5px; font-size: 24px; }
+        .section-label { grid-column: 1/-1; margin-top: 35px; color: var(--p); border-bottom: 4px solid var(--p); padding-bottom: 8px; font-size: 26px; font-weight: bold; }
         
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
@@ -47,7 +47,7 @@
 <body>
 
 <nav>
-    <div style="font-weight:bold; color:var(--p); font-size: 22px;">Broussard Academy</div>
+    <div style="font-weight:bold; color:var(--p); font-size: 24px;">Broussard Academy</div>
     <button class="mode-btn" id="toggle-btn" onclick="toggleView()">⚙️</button>
 </nav>
 
@@ -58,35 +58,55 @@
         <button class="nav-btn" onclick="changeWord(-1)">◀ Back</button>
         <button class="nav-btn btn-next" onclick="changeWord(1)">Next ▶</button>
     </div>
-    <p id="word-count" style="color:#888; margin-top:20px; font-weight: bold;">Word 1 of 100</p>
+    <p id="word-count" style="color:#888; margin-top:25px; font-size: 20px;">Word 1 of 100</p>
 </div>
 
 <div id="setup-view">
-    <input type="text" class="search-bar" id="search" placeholder="Search sounds (e.g. 'th' or 'long a')..." onkeyup="filterSounds()">
+    <input type="text" class="search-bar" id="search" placeholder="Find a sound (e.g. 'th' or 'long a')..." onkeyup="filterSounds()">
     <div class="sound-grid" id="master-board"></div>
 </div>
 
 <script>
-// THE PHONETIC ATLAS
+// --- TEACHER BRAIN: PHONETIC LIBRARY ---
 const library = {
-    "Short Vowels": { "a_short": "apple", "e_short": "elephant", "i_short": "igloo", "o_short": "octopus", "u_short": "umbrella" },
-    "Long Vowels": { "a_long": "cake", "e_long": "tree", "i_long": "bike", "o_long": "boat", "u_long": "mule" },
-    "Digraphs": { "th_voiced": "the / this", "th_unvoiced": "thumb", "sh": "ship", "ch": "chip", "wh": "whale", "ng": "ring", "ph": "phone" },
-    "Chunks": { "an": "and", "at": "that", "ing": "ring", "er": "her", "ay": "day", "ow": "cow", "oo_short": "book", "oo_long": "moon" },
-    "Singles": { "b":"b","c":"c","d":"d","f":"f","g":"g","h":"h","j":"j","k":"k","l":"l","m":"m","n":"n","p":"p","r":"r","s":"s","t":"t","v":"v","w":"w","y":"y","z":"z" }
+    "Vowels (Short)": { "a_short": "apple", "e_short": "elephant / the", "i_short": "igloo / is", "o_short": "octopus / of", "u_short": "umbrella / a / was" },
+    "Vowels (Long)": { "a_long": "cake", "e_long": "tree / he", "i_long": "bike / i", "o_long": "boat / go", "u_long": "mule / you" },
+    "Digraphs": { "th_voiced": "the / this (buzzy)", "th_unvoiced": "thumb (quiet)", "sh": "ship", "ch": "chip", "wh": "whale / what", "ng": "ring" },
+    "Special Ends": { "er": "water / other", "ay": "day / they", "or": "for", "v": "the 'v' in 'of'", "z": "the 'z' in 'is/was'", "oo_long": "to / you / do" },
+    "Chunks": { "an": "and", "at": "that", "in": "in", "it": "it", "on": "on" },
+    "Alphabet": { "b":"b","c":"c","d":"d","f":"f","g":"g","h":"h","j":"j","k":"k","l":"l","m":"m","n":"n","p":"p","r":"r","s":"s","t":"t","w":"w","y":"y" }
 };
 
+// --- SIGHT WORDS 100 ---
 const words = ["the", "of", "and", "a", "to", "in", "is", "you", "that", "it", "he", "was", "for", "on", "are", "as", "with", "his", "they", "i", "at", "be", "this", "have", "from", "or", "one", "had", "by", "word", "but", "not", "what", "all", "were", "we", "when", "your", "can", "said", "there", "use", "an", "each", "which", "she", "do", "how", "their", "if", "will", "up", "other", "about", "out", "many", "then", "them", "these", "so", "some", "her", "would", "make", "like", "him", "into", "time", "has", "look", "two", "more", "write", "go", "see", "number", "no", "way", "could", "people", "my", "than", "first", "water", "been", "called", "who", "oil", "its", "now", "find", "long", "down", "day", "did", "get", "come", "made", "may", "part"];
 
+// --- TEACHER LOGIC: PHONETIC RECIPES ---
 const logic = {
-    "the": ["th_voiced", "e_short"], "and": ["an", "d"], "that": ["th_unvoiced", "at"], "with": ["w", "i_short", "th_unvoiced"],
-    "water": ["w", "a_short", "t", "er"], "other": ["o_short", "th_voiced", "er"], "said": ["s", "e_short", "d"], "she": ["sh", "e_long"]
+    "the": ["th_voiced", "e_short"],
+    "of": ["u_short", "v"],
+    "a": ["u_short"],
+    "to": ["t", "oo_long"],
+    "in": ["in"],
+    "is": ["i_short", "z"],
+    "you": ["y", "oo_long"],
+    "it": ["it"],
+    "he": ["h", "e_long"],
+    "and": ["an", "d"],
+    "that": ["th_unvoiced", "at"],
+    "was": ["w", "u_short", "z"],
+    "for": ["f", "or"],
+    "are": ["ar"],
+    "as": ["a_short", "z"],
+    "with": ["w", "i_short", "th_unvoiced"],
+    "they": ["th_voiced", "ay"],
+    "i": ["i_long"],
+    "water": ["w", "a_short", "t", "er"],
+    "said": ["s", "e_short", "d"],
+    "what": ["wh", "u_short", "t"]
 };
 
 let db, stream, recorder, cur = 0;
-
-// Open IndexedDB (Permanent browser storage)
-const req = indexedDB.open("BroussardReadingDB", 1);
+const req = indexedDB.open("BroussardPhonicsDB", 1);
 req.onupgradeneeded = e => e.target.result.createObjectStore("sounds");
 req.onsuccess = e => { db = e.target.result; renderSetup(); updateGame(); };
 
@@ -126,45 +146,4 @@ function startRec(k) {
         let chunks = [];
         recorder = new MediaRecorder(stream);
         recorder.ondataavailable = e => chunks.push(e.data);
-        recorder.onstop = () => saveAudio(k, new Blob(chunks, {type:'audio/webm'}));
-        recorder.start();
-        document.getElementById(`rec-${k}`).style.display = 'none';
-        document.getElementById(`stop-${k}`).style.display = 'block';
-    });
-}
-
-function stopRec(k) { recorder.stop(); document.getElementById(`stop-${k}`).style.display = 'none'; document.getElementById(`rec-${k}`).style.display = 'block'; }
-
-function updateGame() {
-    const w = words[cur];
-    const p = logic[w] || w.split("");
-    const c = document.getElementById('syllables-display');
-    c.innerHTML = "";
-    p.forEach(part => {
-        const box = document.createElement('div'); box.className = 'syllable-box';
-        box.innerText = part.split('_')[0]; box.onclick = () => playAudio(part);
-        c.appendChild(box);
-    });
-    document.getElementById('word-count').innerText = `Word ${cur+1} of 100`;
-    document.getElementById('star-box').innerHTML = "⭐".repeat(Math.floor((cur+1)/5));
-}
-
-function changeWord(d) { cur = (cur+d+words.length)%words.length; updateGame(); }
-
-function toggleView() {
-    const g = document.getElementById('game-view'), s = document.getElementById('setup-view'), t = document.getElementById('toggle-btn');
-    const isG = g.style.display !== 'none';
-    g.style.display = isG ? 'none' : 'flex';
-    s.style.display = isG ? 'block' : 'none';
-    t.innerText = isG ? '📖' : '⚙️';
-}
-
-function filterSounds() {
-    const val = document.getElementById('search').value.toLowerCase();
-    document.querySelectorAll('.sound-card').forEach(card => {
-        card.style.display = card.innerText.toLowerCase().includes(val) ? "flex" : "none";
-    });
-}
-</script>
-</body>
-</html>
+        recorder.onstop = () => saveAudio(k, new Blob(chunks, {type:'audio/
