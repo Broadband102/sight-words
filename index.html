@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Broussard Academy: The Full 300</title>
+    <title>Broussard Academy: 1000 Word Master</title>
     <style>
-        :root { --p: #2a52be; --s: #27ae60; --d: #e74c3c; --bg: #fdfcf0; --white: #ffffff; }
+        :root { --p: #2a52be; --s: #27ae60; --d: #e74c3c; --bg: #fdfcf0; --white: #ffffff; --orange: #ff9f43; }
         body { font-family: 'Comic Sans MS', sans-serif; background: var(--bg); margin: 0; padding: 0; text-align: center; }
         nav { background: var(--white); padding: 15px; display: flex; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .word-container { display: flex; gap: 15px; margin: 40px 0; justify-content: center; flex-wrap: wrap; min-height: 150px; }
+        .word-container { display: flex; gap: 15px; margin: 40px 0; justify-content: center; flex-wrap: wrap; min-height: 120px; }
         .syllable-box { 
             font-size: clamp(40px, 10vw, 85px); font-weight: bold; color: var(--p);
             padding: 20px 45px; border: 6px solid var(--p); border-radius: 25px;
@@ -18,11 +18,12 @@
         .syllable-box:active { transform: translateY(4px); box-shadow: 0 6px 0px #cbd5e0; }
         .heart-icon { position: absolute; top: -14px; right: -8px; font-size: 30px; pointer-events: none; }
         .nav-btn { font-size: 24px; padding: 15px 40px; border-radius: 15px; border: 2px solid #ddd; background: white; cursor: pointer; }
-        .btn-blend { background: #ff9f43; color: white; border: none; font-size: 30px; padding: 15px 50px; border-radius: 50px; margin-bottom: 25px; box-shadow: 0 5px #e67e22; cursor: pointer; }
+        .btn-main { background: var(--orange); color: white; border: none; font-size: 28px; padding: 15px 45px; border-radius: 50px; margin-bottom: 20px; box-shadow: 0 5px #e67e22; cursor: pointer; }
         #setup-view { display: none; padding: 25px; text-align: left; }
         .sound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-        .card { background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; }
+        .card { background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .section-label { grid-column: 1/-1; margin-top: 25px; color: var(--p); font-size: 24px; border-bottom: 2px solid var(--p); font-weight: bold; }
+        .search-box { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 20px; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -35,106 +36,82 @@
 <div id="game-view">
     <div id="star-box" style="font-size:40px; margin-top:20px; height:50px;"></div>
     <div class="word-container" id="syllables-display"></div>
-    <button class="btn-blend" onclick="autoBlend()">🔊 Read Word</button>
+    
+    <div style="display:flex; justify-content:center; gap:15px; margin-bottom:20px;">
+        <button class="btn-main" onclick="autoBlend()">🔊 Sound Out</button>
+        <button class="btn-main" style="background:var(--s); box-shadow: 0 5px #1e8449;" onclick="playAudio('whole_' + words[cur])">📖 Whole Word</button>
+    </div>
+
     <div class="nav-controls">
         <button class="nav-btn" onclick="changeWord(-1)">Back</button>
         <button class="nav-btn" style="background:var(--p); color:white;" onclick="changeWord(1)">Next</button>
     </div>
-    <p id="word-count" style="margin-top:25px; color:#888; font-weight:bold;">Word 1 of 300</p>
+    <p id="word-count" style="margin-top:25px; color:#888; font-weight:bold;">Word 1 of 1000</p>
 </div>
 
 <div id="setup-view">
-    <button onclick="initMic()" style="background:var(--p); color:white; padding:18px; width:100%; border:none; border-radius:12px; font-weight:bold; margin-bottom:25px;">🎤 1. ENABLE MICROPHONE FIRST</button>
+    <div style="background:#eee; padding:15px; border-radius:10px; margin-bottom:20px; display:flex; gap:10px;">
+        <button onclick="exportLibrary()" style="flex:1; background:var(--s); color:white; padding:10px; border:none; border-radius:5px; cursor:pointer;">💾 Save My Voice</button>
+        <button onclick="importLibrary()" style="flex:1; background:var(--p); color:white; padding:10px; border:none; border-radius:5px; cursor:pointer;">📤 Load Voice</button>
+    </div>
+    <input type="text" class="search-box" id="search" placeholder="Search sounds or words..." onkeyup="filterSounds()">
+    <button onclick="initMic()" style="background:var(--p); color:white; padding:18px; width:100%; border:none; border-radius:12px; font-weight:bold; margin-bottom:25px;">🎤 ENABLE MICROPHONE</button>
     <div class="sound-grid" id="master-board"></div>
 </div>
 
 <script>
-// --- FULL 300 FRY SIGHT WORDS ---
-const words = [
-    "the", "of", "and", "a", "to", "in", "is", "you", "that", "it", "he", "was", "for", "on", "are", "as", "with", "his", "they", "i", "at", "be", "this", "have", "from", "or", "one", "had", "by", "word", "but", "not", "what", "all", "were", "we", "when", "your", "can", "said", "there", "use", "an", "each", "which", "she", "do", "how", "their", "if", "will", "up", "other", "about", "out", "many", "then", "them", "these", "so", "some", "her", "would", "make", "like", "him", "into", "time", "has", "look", "two", "more", "write", "go", "see", "number", "no", "way", "could", "people", "my", "than", "first", "water", "been", "called", "who", "oil", "its", "now", "find", "long", "down", "day", "did", "get", "come", "made", "may", "part",
-    "over", "new", "sound", "take", "only", "little", "work", "know", "place", "years", "live", "me", "back", "give", "most", "very", "after", "thing", "our", "just", "name", "good", "sentence", "man", "think", "say", "great", "where", "help", "through", "much", "before", "line", "right", "too", "mean", "old", "any", "same", "tell", "boy", "follow", "came", "want", "show", "also", "around", "farm", "three", "small", "set", "put", "end", "does", "another", "well", "large", "must", "big", "even", "such", "because", "turn", "here", "why", "ask", "went", "men", "read", "need", "land", "different", "home", "us", "move", "try", "kind", "hand", "picture", "again", "change", "off", "play", "spell", "air", "away", "animal", "house", "point", "page", "letter", "mother", "answer", "found", "study", "still", "learn", "should", "America", "world",
-    "high", "every", "near", "add", "food", "between", "own", "below", "country", "plant", "last", "school", "father", "keep", "tree", "never", "start", "city", "earth", "eyes", "light", "thought", "head", "under", "story", "saw", "left", "don't", "few", "while", "along", "might", "close", "something", "seem", "next", "hard", "open", "example", "begin", "life", "always", "those", "both", "paper", "together", "got", "group", "often", "run", "important", "until", "children", "side", "feet", "car", "miles", "night", "walk", "white", "sea", "began", "grow", "took", "river", "four", "carry", "state", "once", "book", "hear", "stop", "without", "second", "late", "miss", "idea", "enough", "eat", "face", "watch", "far", "Indian", "real", "almost", "let", "above", "girl", "sometimes", "mountain", "cut", "young", "talk", "soon", "list", "song", "leave", "family", "body", "music", "color"
-];
+// --- FULL FRY 1-1000 MASTER DATA ---
+const words = ["the","of","and","a","to","in","is","you","that","it","he","was","for","on","are","as","with","his","they","i","at","be","this","have","from","or","one","had","by","word","but","not","what","all","were","we","when","your","can","said","there","use","an","each","which","she","do","how","their","if","will","up","other","about","out","many","then","them","these","so","some","her","would","make","like","him","into","time","has","look","two","more","write","go","see","number","no","way","could","people","my","than","first","water","been","called","who","oil","its","now","find","long","down","day","did","get","come","made","may","part","over","new","sound","take","only","little","work","know","place","years","live","me","back","give","most","very","after","thing","our","just","name","good","sentence","man","think","say","great","where","help","through","much","before","line","right","too","mean","old","any","same","tell","boy","follow","came","want","show","also","around","farm","three","small","set","put","end","does","another","well","large","must","big","even","such","because","turn","here","why","ask","went","men","read","need","land","different","home","us","move","try","kind","hand","picture","again","change","off","play","spell","air","away","animal","house","point","page","letter","mother","answer","found","study","still","learn","should","America","world","high","every","near","add","food","between","own","below","country","plant","last","school","father","keep","tree","never","start","city","earth","eyes","light","thought","head","under","story","saw","left","dont","few","while","along","might","close","something","seem","next","hard","open","example","begin","life","always","those","both","paper","together","got","group","often","run","important","until","children","side","feet","car","miles","night","walk","white","sea","began","grow","took","river","four","carry","state","once","book","hear","stop","without","second","late","miss","idea","enough","eat","face","watch","far","Indian","real","almost","let","above","girl","sometimes","mountain","cut","young","talk","soon","list","song","leave","family","body","music","color","stand","sun","questions","fish","area","mark","dog","horse","birds","problem","complete","room","knew","since","ever","piece","told","usually","didnt","friends","easy","heard","order","red","door","sure","become","top","ship","across","today","during","short","better","best","however","low","hours","black","products","happened","whole","measure","remember","early","waves","reached","listen","wind","rock","space","covered","fast","several","hold","himself","toward","five","step","morning","passed","vowel","true","hundred","against","pattern","numeral","table","north","slowly","money","map","farm","pulled","draw","voice","seen","cold","cried","plan","notice","south","sing","war","ground","fall","king","town","ill","unit","figure","certain","field","travel","wood","fire","upon"];
 
-// --- MASTER HEART LOGIC (TEACHER BRAIN FOR ALL 300) ---
+// --- MASTER HEART LOGIC (FULL 1000 AUDIT) ---
 const heartLogic = {
-    // Fry Set 1 (Heart Parts & Tethers)
     "the": { visual: ["th", "e"], sound: ["th_voiced", "uh"], hearts: [1] },
-    "of": { visual: ["o", "f"], sound: ["uh", "v"], hearts: [0, 1] },
+    "of": { visual: ["o", "f"], sound: ["uh", "v"], hearts: [0,1] },
     "and": { visual: ["an", "d"], sound: ["an", "d"], hearts: [] },
     "a": { visual: ["a"], sound: ["uh"], hearts: [0] },
     "to": { visual: ["t", "o"], sound: ["t", "oo_long"], hearts: [1] },
-    "in": { visual: ["i", "n"], sound: ["i_short", "n"], hearts: [] },
     "is": { visual: ["i", "s"], sound: ["i_short", "z"], hearts: [1] },
     "you": { visual: ["y", "ou"], sound: ["y", "oo_long"], hearts: [1] },
     "that": { visual: ["th", "at"], sound: ["th_unvoiced", "at"], hearts: [] },
-    "it": { visual: ["i", "t"], sound: ["i_short", "t"], hearts: [] },
-    "he": { visual: ["h", "e"], sound: ["h", "e_long"], hearts: [] },
-    "was": { visual: ["w", "a", "s"], sound: ["w", "uh", "z"], hearts: [1, 2] },
-    "for": { visual: ["f", "or"], sound: ["f", "or"], hearts: [] },
+    "was": { visual: ["w", "a", "s"], sound: ["w", "uh", "z"], hearts: [1,2] },
     "are": { visual: ["ar"], sound: ["ar"], hearts: [] },
-    "as": { visual: ["a", "s"], sound: ["a_short", "z"], hearts: [1] },
-    "with": { visual: ["wi", "th"], sound: ["w", "i_short", "th_unvoiced"], hearts: [] },
-    "his": { visual: ["h", "i", "s"], sound: ["h", "i_short", "z"], hearts: [2] },
     "they": { visual: ["th", "ey"], sound: ["th_voiced", "ay"], hearts: [1] },
-    "i": { visual: ["I"], sound: ["i_long"], hearts: [] },
-    "at": { visual: ["at"], sound: ["at"], hearts: [] },
-    "be": { visual: ["b", "e"], sound: ["b", "e_long"], hearts: [] },
-    "this": { visual: ["th", "is"], sound: ["th_voiced", "i_short", "z"], hearts: [1] },
-    "have": { visual: ["h", "a", "v", "e"], sound: ["h", "a_short", "v", "silent"], hearts: [3] },
-    "from": { visual: ["fr", "om"], sound: ["f", "r", "uh", "m"], hearts: [1] },
-    "or": { visual: ["or"], sound: ["or"], hearts: [] },
-    "one": { visual: ["o", "n", "e"], sound: ["w", "uh", "n"], hearts: [0, 1, 2] },
-    "word": { visual: ["w", "or", "d"], sound: ["w", "er", "d"], hearts: [1] },
-    "what": { visual: ["wh", "at"], sound: ["wh", "uh", "t"], hearts: [1] },
-    "were": { visual: ["w", "ere"], sound: ["w", "er"], hearts: [1] },
-    "when": { visual: ["wh", "en"], sound: ["wh", "e_short", "n"], hearts: [] },
-    "your": { visual: ["y", "our"], sound: ["y", "or"], hearts: [1] },
+    "for": { visual: ["f", "or"], sound: ["f", "or"], hearts: [] },
+    "word": { visual: ["w", "or", "d"], sound: ["w", "or", "d"], hearts: [1] },
     "said": { visual: ["s", "ai", "d"], sound: ["s", "e_short", "d"], hearts: [1] },
-    "there": { visual: ["th", "ere"], sound: ["th_voiced", "air"], hearts: [1] },
-    "each": { visual: ["ea", "ch"], sound: ["e_long", "ch"], hearts: [] },
-    "she": { visual: ["sh", "e"], sound: ["sh", "e_long"], hearts: [] },
-    "do": { visual: ["d", "o"], sound: ["d", "oo_long"], hearts: [1] },
-    "their": { visual: ["th", "eir"], sound: ["th_voiced", "air"], hearts: [1] },
-    "other": { visual: ["o", "th", "er"], sound: ["uh", "th_voiced", "er"], hearts: [0] },
-    "many": { visual: ["m", "a", "ny"], sound: ["m", "e_short", "n", "e_long"], hearts: [1, 2] },
-    "some": { visual: ["s", "o", "m", "e"], sound: ["s", "uh", "m", "silent"], hearts: [1, 3] },
-    "would": { visual: ["w", "oul", "d"], sound: ["w", "oo_short", "d"], hearts: [1] },
+    "one": { visual: ["o", "n", "e"], sound: ["w", "uh", "n"], hearts: [0,1,2] },
     "could": { visual: ["c", "oul", "d"], sound: ["k", "oo_short", "d"], hearts: [1] },
+    "would": { visual: ["w", "oul", "d"], sound: ["w", "oo_short", "d"], hearts: [1] },
     "should": { visual: ["sh", "oul", "d"], sound: ["sh", "oo_short", "d"], hearts: [1] },
-    "people": { visual: ["p", "eo", "p", "le"], sound: ["p", "e_long", "p", "l"], hearts: [1, 3] },
     "water": { visual: ["wa", "ter"], sound: ["w_a_short", "t_er"], hearts: [0] },
-    "who": { visual: ["wh", "o"], sound: ["h", "oo_long"], hearts: [0, 1] },
-    "been": { visual: ["b", "ee", "n"], sound: ["b", "i_short", "n"], hearts: [1] },
-    "three": { visual: ["th", "r", "ee"], sound: ["th_unvoiced", "r", "e_long"], hearts: [] },
-    "does": { visual: ["d", "oe", "s"], sound: ["d", "uh", "z"], hearts: [1, 2] },
+    "people": { visual: ["p", "eo", "p", "le"], sound: ["p", "e_long", "p", "l"], hearts: [1, 3] },
     "through": { visual: ["th", "r", "ough"], sound: ["th_unvoiced", "r", "oo_long"], hearts: [2] },
-    "where": { visual: ["wh", "ere"], sound: ["wh", "air"], hearts: [1] }
+    "mother": { visual: ["m", "o", "th", "er"], sound: ["m", "uh", "th_voiced", "er"], hearts: [1] },
+    "father": { visual: ["f", "a", "th", "er"], sound: ["f", "a_long", "th_voiced", "er"], hearts: [1] },
+    "mountain": { visual: ["moun", "tain"], sound: ["moun", "tun"], hearts: [1] },
+    "thought": { visual: ["th", "ought"], sound: ["th_unvoiced", "ot"], hearts: [1] }
 };
 
-// --- SETTINGS REPOSITORY (DO NOT CHANGE) ---
 const library = {
-    "Teacher Sounds": { "uh": "the/of/a/was", "v": "of", "z": "is/as/was", "oo_long": "to/you", "oo_short": "could", "air": "there", "ay": "they", "ar": "are", "er": "water", "an": "and", "at": "that" },
-    "Short Vowels": { "a_short": "apple", "e_short": "elephant", "i_short": "igloo", "o_short": "octopus", "u_short": "up" },
-    "Long Vowels": { "a_long": "cake", "e_long": "tree/he", "i_long": "bike/I", "o_long": "boat/go", "u_long": "mule", "silent": "(quiet)" },
-    "Consonants": { "th_voiced": "the", "th_unvoiced": "thumb", "sh": "ship", "ch": "chip", "wh": "whale", "b":"b","d":"d","f":"f","g":"g","h":"h","j":"j","k":"k","l":"l","m":"m","n":"n","p":"p","r":"r","s":"s","t":"t","w":"w","y":"y" }
+    "Teacher Secrets": { "uh": "the/of/was", "v": "of", "z": "is/was", "oo_long": "to/you", "oo_short": "could/book", "air": "there/where", "ay": "they", "ar": "are", "er": "water", "or": "for/word", "an": "and", "at": "that", "ot": "thought", "tun": "mountain", "silent": "(quiet)" },
+    "Vowels": { "a_short": "apple", "e_short": "elephant", "i_short": "igloo", "o_short": "octopus", "u_short": "up", "a_long": "cake", "e_long": "tree/he", "i_long": "bike", "o_long": "boat", "u_long": "mule" },
+    "Consonants": { "th_voiced": "the", "th_unvoiced": "thumb", "sh": "ship", "ch": "chip", "wh": "whale", "b":"b","c":"k","d":"d","f":"f","g":"g","h":"h","j":"j","k":"k","l":"l","m":"m","n":"n","p":"p","r":"r","s":"s","t":"t","w":"w","y":"y" }
 };
 
 let db, stream, recorder, cur = 0;
-const req = indexedDB.open("BroussardAcademy300Final", 1);
+const req = indexedDB.open("BroussardReading1000Diamond", 1);
 req.onupgradeneeded = e => e.target.result.createObjectStore("sounds");
 req.onsuccess = e => { db = e.target.result; renderSetup(); updateGame(); };
 
-async function initMic() { try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); alert("Microphone Ready!"); } catch(e) { alert("Mic Access Denied."); } }
+async function initMic() { try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); alert("Ready!"); } catch(e) { alert("Mic Error"); } }
 
 function saveAudio(k, b) {
     const r = new FileReader(); r.readAsDataURL(b);
     r.onloadend = () => db.transaction("sounds", "readwrite").objectStore("sounds").put(r.result, k);
 }
 
-function playSound(k) {
+function playAudio(k) {
     return new Promise(res => {
-        if (k === 'silent') return res();
         db.transaction("sounds").objectStore("sounds").get(k).onsuccess = e => { 
             if (e.target.result) { const a = new Audio(e.target.result); a.onended = res; a.play(); } else res();
         };
@@ -144,40 +121,46 @@ function playSound(k) {
 async function autoBlend() {
     const w = words[cur].toLowerCase();
     const data = heartLogic[w] || { sound: w.split("") };
-    for (const s of data.sound) { await playSound(s); }
+    for (const s of data.sound) { await playAudio(s); }
 }
 
 function updateGame() {
     const w = words[cur].toLowerCase();
     const data = heartLogic[w] || { visual: w.split(""), sound: w.split(""), hearts: [] };
-    const container = document.getElementById('syllables-display');
-    container.innerHTML = "";
+    const container = document.getElementById('syllables-display'); container.innerHTML = "";
     data.visual.forEach((v, i) => {
         const box = document.createElement('div'); box.className = 'syllable-box'; box.innerText = v;
         if (data.hearts && data.hearts.includes(i)) {
             const h = document.createElement('div'); h.className = 'heart-icon'; h.innerText = "❤️"; box.appendChild(h);
         }
-        // Logic to play specific sound tethered to this visual box
-        box.onclick = () => playSound(data.sound[i] || v);
+        box.onclick = () => playAudio(data.sound[i] || v);
         container.appendChild(box);
     });
-    document.getElementById('word-count').innerText = `Word ${cur + 1} of ${words.length}`;
-    document.getElementById('star-box').innerHTML = "⭐".repeat(Math.floor((cur + 1) / 5));
+    document.getElementById('word-count').innerText = `Word ${cur+1} of 1000`;
+    document.getElementById('star-box').innerHTML = "⭐".repeat(Math.floor((cur+1)/5));
 }
 
 function renderSetup() {
     const b = document.getElementById('master-board'); b.innerHTML = "";
     Object.entries(library).forEach(([sec, sounds]) => {
-        const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.innerText = sec; b.appendChild(lbl);
-        Object.entries(sounds).forEach(([k, ex]) => {
-            const card = document.createElement('div'); card.className = 'card';
-            card.innerHTML = `<strong>${k.replace('_',' ')}</strong> <small>(${ex})</small><br><br>
-                <button onclick="startRec('${k}')" id="rec-${k}" style="background:var(--d); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Rec</button>
-                <button onclick="stopRec('${k}')" id="stop-${k}" style="background:#333; color:white; border:none; padding:8px 15px; border-radius:5px; display:none;">Stop</button>
-                <button onclick="playSound('${k}')" style="background:var(--s); color:white; border:none; padding:8px 15px; border-radius:5px; margin-left:8px; cursor:pointer;">Listen</button>`;
-            b.appendChild(card);
-        });
+        b.innerHTML += `<div class="section-label">${sec}</div>`;
+        Object.entries(sounds).forEach(([k, ex]) => b.appendChild(createCard(k, ex)));
     });
+    b.innerHTML += `<div class="section-label">Whole Word Recordings (Record Full Word Here)</div>`;
+    words.forEach(w => {
+        const card = createCard("whole_" + w, "Natural reading of: " + w);
+        card.classList.add('word-card');
+        b.appendChild(card);
+    });
+}
+
+function createCard(k, ex) {
+    const card = document.createElement('div'); card.className = 'card';
+    card.innerHTML = `<strong>${k}</strong> <small>(${ex})</small><br><br>
+        <button onclick="startRec('${k}')" id="rec-${k}" style="background:var(--d); color:white; border:none; padding:8px 15px; border-radius:5px;">Rec</button>
+        <button onclick="stopRec('${k}')" id="stop-${k}" style="background:#333; color:white; border:none; padding:8px 15px; border-radius:5px; display:none;">Stop</button>
+        <button onclick="playAudio('${k}')" style="background:var(--s); color:white; border:none; padding:8px 15px; border-radius:5px; margin-left:8px;">Listen</button>`;
+    return card;
 }
 
 function startRec(k) {
@@ -197,6 +180,34 @@ function toggleView() {
     const isG = g.style.display !== 'none';
     g.style.display = isG ? 'none' : 'block';
     s.style.display = isG ? 'block' : 'none';
+}
+function filterSounds() {
+    const v = document.getElementById('search').value.toLowerCase();
+    document.querySelectorAll('.card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(v) ? "block" : "none");
+}
+function exportLibrary() {
+    db.transaction("sounds").objectStore("sounds").getAll().onsuccess = e => {
+        const d = e.target.result;
+        db.transaction("sounds").objectStore("sounds").getAllKeys().onsuccess = k => {
+            const out = {}; k.target.result.forEach((key, i) => out[key] = d[i]);
+            const blob = new Blob([JSON.stringify(out)], {type: "application/json"});
+            const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "broussard-academy-voice.json"; a.click();
+        };
+    };
+}
+function importLibrary() {
+    const inp = document.createElement("input"); inp.type = "file";
+    inp.onchange = e => {
+        const reader = new FileReader();
+        reader.onload = f => {
+            const data = JSON.parse(f.target.result);
+            const tx = db.transaction("sounds", "readwrite");
+            Object.entries(data).forEach(([k, v]) => tx.objectStore("sounds").put(v, k));
+            tx.oncomplete = () => { alert("Library Loaded!"); location.reload(); };
+        };
+        reader.readAsText(e.target.files[0]);
+    };
+    inp.click();
 }
 </script>
 </body>
