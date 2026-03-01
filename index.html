@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Broussard Academy</title>
+    <title>Broussard Academy: Master Edition</title>
     <style>
         :root { --p: #2a52be; --s: #27ae60; --d: #e74c3c; --bg: #fdfcf0; --white: #ffffff; }
         body { font-family: 'Comic Sans MS', sans-serif; background: var(--bg); margin: 0; padding: 0; text-align: center; }
@@ -15,24 +15,25 @@
             background: white; cursor: pointer; box-shadow: 0 10px 0px #cbd5e0;
         }
         .nav-btn { font-size: 24px; padding: 15px 40px; border-radius: 15px; border: 2px solid #ddd; cursor: pointer; }
-        #setup-view { display: none; padding: 20px; }
-        .sound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
-        .card { background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; text-align: left; }
+        #setup-view { display: none; padding: 20px; text-align: left; }
+        .sound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+        .card { background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; }
         .btn-rec { background: var(--d); color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
         .btn-stop { background: #333; color: white; border: none; padding: 10px; border-radius: 5px; display: none; }
         .btn-play { background: var(--s); color: white; border: none; padding: 10px; border-radius: 5px; margin-left: 5px; cursor: pointer; }
+        .section-label { grid-column: 1/-1; margin-top: 25px; color: var(--p); font-size: 24px; border-bottom: 2px solid var(--p); }
     </style>
 </head>
 <body>
 
 <nav>
-    <strong style="color:var(--p)">Broussard Academy</strong>
+    <strong style="color:var(--p)">Broussard Reading Academy</strong>
     <button onclick="toggleView()" style="font-size:30px; border:none; background:none; cursor:pointer;">⚙️</button>
 </nav>
 
 <div id="game-view">
     <div id="star-box" style="font-size:40px; margin-top:20px; height:50px;"></div>
-    <div class="word-container" id="syllables-display">Loading...</div>
+    <div class="word-container" id="syllables-display"></div>
     <div class="nav-controls">
         <button class="nav-btn" onclick="changeWord(-1)">Back</button>
         <button class="nav-btn" style="background:var(--p); color:white;" onclick="changeWord(1)">Next</button>
@@ -41,40 +42,35 @@
 </div>
 
 <div id="setup-view">
-    <h2>Sound Settings</h2>
-    <button onclick="initMic()" style="background:var(--p); color:white; padding:10px 20px; border:none; border-radius:10px; margin-bottom:20px;">1. Enable Microphone First</button>
+    <button onclick="initMic()" style="background:var(--p); color:white; padding:15px; width:100%; border:none; border-radius:10px; font-weight:bold; margin-bottom:20px;">🎤 ENABLE MICROPHONE</button>
     <div class="sound-grid" id="master-board"></div>
 </div>
 
 <script>
-const words = ["the", "of", "and", "a", "to", "in", "is", "you", "that", "it", "he", "was", "for", "on", "are", "as", "with", "his", "they", "i", "at", "be", "this", "have", "from", "or", "one", "had", "by", "word", "but", "not", "what", "all", "were", "we", "when", "your", "can", "said", "there", "use", "an", "each", "which", "she", "do", "how", "their", "if", "will", "up", "other", "about", "out", "many", "then", "them", "these", "so", "some", "her", "would", "make", "like", "him", "into", "time", "has", "look", "two", "more", "write", "go", "see", "number", "no", "way", "could", "people", "my", "than", "first", "water", "been", "called", "who", "oil", "its", "now", "find", "long", "down", "day", "did", "get", "come", "made", "may", "part"];
-const logic = {
-    "the": ["th_voiced", "e_short"], "of": ["u_short", "v"], "a": ["u_short"], "to": ["t", "oo_long"], 
-    "is": ["i_short", "z"], "you": ["y", "oo_long"], "he": ["h", "e_long"], "was": ["w", "u_short", "z"]
+// THE COMPLETE PHONETIC ATLAS
+const fullLibrary = {
+    "Vowels": { "a_short": "apple", "e_short": "elephant", "i_short": "igloo", "o_short": "octopus", "u_short": "umbrella / a", "a_long": "cake", "e_long": "tree", "i_long": "bike", "o_long": "boat", "u_long": "mule", "oo_long": "moon / to", "oo_short": "book" },
+    "Digraphs": { "th_voiced": "the / this", "th_unvoiced": "thumb", "sh": "ship", "ch": "chip", "wh": "whale", "ng": "ring", "ph": "phone" },
+    "Teacher Special": { "v": "of", "z": "is / was", "er": "water", "ay": "they", "ar": "are", "or": "for", "an": "and", "at": "that", "in": "in", "it": "it" },
+    "Singles": { "b":"b","c":"c","d":"d","f":"f","g":"g","h":"h","j":"j","k":"k","l":"l","m":"m","n":"n","p":"p","r":"r","s":"s","t":"t","w":"w","y":"y" }
 };
-const library = {
-    "th_voiced": "the", "th_unvoiced": "thumb", "e_short": "elephant", "u_short": "up / of", 
-    "i_short": "igloo", "v": "of", "z": "is", "oo_long": "to / you", "e_long": "he",
-    "an": "and", "at": "that", "in": "in", "it": "it", "h": "h", "t": "t", "w": "w", "y": "y", "d": "d"
+
+const words = ["the", "of", "and", "a", "to", "in", "is", "you", "that", "it", "he", "was", "for", "on", "are", "as", "with", "his", "they", "i", "at", "be", "this", "have", "from", "or", "one", "had", "by", "word", "but", "not", "what", "all", "were", "we", "when", "your", "can", "said", "there", "use", "an", "each", "which", "she", "do", "how", "their", "if", "will", "up", "other", "about", "out", "many", "then", "them", "these", "so", "some", "her", "would", "make", "like", "him", "into", "time", "has", "look", "two", "more", "write", "go", "see", "number", "no", "way", "could", "people", "my", "than", "first", "water", "been", "called", "who", "oil", "its", "now", "find", "long", "down", "day", "did", "get", "come", "made", "may", "part"];
+
+const teacherLogic = {
+    "the": ["th_voiced", "e_short"], "of": ["u_short", "v"], "a": ["u_short"], "to": ["t", "oo_long"], 
+    "is": ["i_short", "z"], "you": ["y", "oo_long"], "he": ["h", "e_long"], "was": ["w", "u_short", "z"],
+    "and": ["an", "d"], "that": ["th_unvoiced", "at"], "in": ["in"], "it": ["it"]
 };
 
 let db, stream, recorder, cur = 0;
 
-// Open Database
-const req = indexedDB.open("ReadingDB", 2); // Bumped version to reset any bad data
-req.onupgradeneeded = e => {
-    if (!e.target.result.objectStoreNames.contains("sounds")) {
-        e.target.result.createObjectStore("sounds");
-    }
-};
+// Connect to BOTH old and new database names to find your sounds
+const req = indexedDB.open("BroussardReadingDB", 1); 
 req.onsuccess = e => { db = e.target.result; renderSetup(); updateGame(); };
+req.onupgradeneeded = e => { e.target.result.createObjectStore("sounds"); };
 
-async function initMic() { 
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        alert("Microphone Ready!");
-    } catch(e) { alert("Mic Error: Check browser permissions."); }
-}
+async function initMic() { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); alert("Mic Active!"); }
 
 function saveAudio(k, b) {
     const r = new FileReader();
@@ -85,24 +81,29 @@ function saveAudio(k, b) {
 function playAudio(k) {
     db.transaction("sounds").objectStore("sounds").get(k).onsuccess = e => { 
         if (e.target.result) new Audio(e.target.result).play(); 
+        else console.log("Missing sound for:", k);
     };
 }
 
 function renderSetup() {
     const b = document.getElementById('master-board');
     b.innerHTML = "";
-    Object.entries(library).forEach(([k, ex]) => {
-        const c = document.createElement('div'); c.className = 'card';
-        c.innerHTML = `<strong>${k}</strong> (${ex})<br>
-        <button class="btn-rec" id="rec-${k}" onclick="startRec('${k}')">Rec</button>
-        <button class="btn-stop" id="stop-${k}" onclick="stopRec('${k}')">Stop</button>
-        <button class="btn-play" onclick="playAudio('${k}')">Listen</button>`;
-        b.appendChild(c);
+    Object.entries(fullLibrary).forEach(([sec, sounds]) => {
+        const h = document.createElement('div'); h.className = 'section-label'; h.innerText = sec;
+        b.appendChild(h);
+        Object.entries(sounds).forEach(([k, ex]) => {
+            const card = document.createElement('div'); card.className = 'card';
+            card.innerHTML = `<strong>${k}</strong> (${ex})<br>
+            <button class="btn-rec" id="rec-${k}" onclick="startRec('${k}')">Rec</button>
+            <button class="btn-stop" id="stop-${k}" onclick="stopRec('${k}')">Stop</button>
+            <button class="btn-play" onclick="playAudio('${k}')">Listen</button>`;
+            b.appendChild(card);
+        });
     });
 }
 
 function startRec(k) {
-    if(!stream) return alert("Enable Mic First!");
+    if(!stream) return alert("Click ENABLE MICROPHONE first!");
     let chunks = [];
     recorder = new MediaRecorder(stream);
     recorder.ondataavailable = e => chunks.push(e.data);
@@ -116,7 +117,7 @@ function stopRec(k) { recorder.stop(); document.getElementById(`stop-${k}`).styl
 
 function updateGame() {
     const w = words[cur];
-    const p = logic[w] || w.split("");
+    const p = teacherLogic[w] || w.split("");
     const container = document.getElementById('syllables-display');
     container.innerHTML = "";
     p.forEach(part => {
